@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { checkServiceNowStatus } from './api';
 
 function Settings() {
   const [notifications, setNotifications] = useState(true);
@@ -7,6 +8,12 @@ function Settings() {
   const [emailReport, setEmailReport] = useState(false);
   const [refreshRate, setRefreshRate] = useState('60');
   const [saved, setSaved] = useState(false);
+
+  const [snStatus, setSnStatus] = useState(null);
+
+  useEffect(() => {
+    checkServiceNowStatus().then(setSnStatus);
+  }, []);
 
   const handleSave = () => {
     setSaved(true);
@@ -80,7 +87,7 @@ function Settings() {
           { name: 'Instagram API', status: 'Connected', color: '#4caf82' },
           { name: 'Facebook API', status: 'Connected', color: '#4caf82' },
           { name: 'X (Twitter) API', status: 'Disconnected', color: '#f74f4f' },
-          { name: 'ServiceNow API', status: 'Connected', color: '#4caf82' },
+          { name: 'ServiceNow API', status: snStatus && snStatus.connected ? 'Connected' : 'Disconnected', color: snStatus && snStatus.connected ? '#4caf82' : '#f74f4f' },
         ].map((api, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
             <div style={{ fontSize: '13px', color: '#ccc' }}>{api.name}</div>

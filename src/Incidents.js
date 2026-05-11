@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createIncident } from './api';
 
 const incidentsData = [
   { id: 'INC0012847', title: 'Negative Spike Detected', platform: 'X', priority: 'High', status: 'Open', assignee: 'Arjun Mehta', time: '2 mins ago', desc: '23 negative mentions detected in 1 hour' },
@@ -11,6 +12,9 @@ const incidentsData = [
 function Incidents() {
   const [filter, setFilter] = useState('All');
   const [incidents, setIncidents] = useState(incidentsData);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newIncident, setNewIncident] = useState({ title: '', description: '' });
+  const [creating, setCreating] = useState(false);
 
   const filtered = filter === 'All' ? incidents : incidents.filter(function(inc) { return inc.status === filter; });
 
@@ -22,6 +26,32 @@ function Incidents() {
     setIncidents(prev => prev.map(function(inc) { return inc.id === id ? { ...inc, status: 'Resolved' } : inc; }));
   };
 
+  const handleCreateIncident = async function() {
+    if (!newIncident.title) return;
+    setCreating(true);
+    try {
+      const result = await createIncident(newIncident.title, newIncident.description);
+      if (result) {
+        const newId = result.number || 'INC' + Date.now();
+        setIncidents(prev => [{
+          id: newId,
+          title: newIncident.title,
+          platform: 'ServiceNow',
+          priority: 'High',
+          status: 'Open',
+          assignee: 'Unassigned',
+          time: 'Just now',
+          desc: newIncident.description || 'Created from SMA Platform'
+        }, ...prev]);
+        setNewIncident({ title: '', description: '' });
+        setShowCreateForm(false);
+      }
+    } catch (e) {
+      console.error('Failed to create incident:', e);
+    }
+    setCreating(false);
+  };
+
   return (
     <div style={{ animation: 'fadeInUp 0.5s ease' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
@@ -31,7 +61,8 @@ function Incidents() {
             <span style={{ color: '#f74f4f', fontWeight: '600' }}>{incidents.filter(function(i) { return i.status !== 'Resolved'; }).length} active</span> · {incidents.filter(function(i) { return i.status === 'Resolved'; }).length} resolved
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button onClick={function() { setShowCreateForm(!showCreateForm); }} style={{ padding: '8px 16px', borderRadius: '10px', background: 'linear-gradient(135deg, #4f8ef7, #7c5af7)', border: 'none', color: '#fff', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Segoe UI' }}>+ Create Incident</button>
           {['All', 'Open', 'In Progress', 'Resolved'].map(function(f) {
             return (
               <button key={f} onClick={function() { setFilter(f); }} style={{ padding: '7px 16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', background: filter === f ? 'linear-gradient(135deg, #4f8ef7, #7c5af7)' : 'transparent', color: filter === f ? '#fff' : '#555', cursor: 'pointer', fontSize: '12px', fontFamily: 'Segoe UI', transition: 'all 0.2s' }}>
@@ -41,6 +72,19 @@ function Incidents() {
           })}
         </div>
       </div>
+
+      {/* Create Incident Form */}
+      {showCreateForm && (
+        <div style={{ background: 'linear-gradient(135deg, #0f1117, #131620)', border: '1px solid rgba(79,142,247,0.2)', borderRadius: '16px', padding: '20px', marginBottom: '20px' }}>
+          <div style={{ fontSize: '14px', fontWeight: '600', color: '#aaa', marginBottom: '16px' }}>Create New Incident in ServiceNow</div>
+          <input type="text" placeholder="Incident Title" value={newIncident.title} onChange={function(e) { setNewIncident(function(prev) { return { ...prev, title: e.target.value }; }); }} style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,17,23,0.8)', color: '#fff', fontSize: '13px', marginBottom: '10px', outline: 'none', boxSizing: 'border-box' }} />
+          <textarea placeholder="Description" value={newIncident.description} onChange={function(e) { setNewIncident(function(prev) { return { ...prev, description: e.target.value }; }); }} style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,17,23,0.8)', color: '#fff', fontSize: '13px', marginBottom: '12px', outline: 'none', minHeight: '60px', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'Segoe UI' }} />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handleCreateIncident} disabled={creating} style={{ padding: '8px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #4f8ef7, #7c5af7)', border: 'none', color: '#fff', fontSize: '12px', fontWeight: '600', cursor: creating ? 'wait' : 'pointer', fontFamily: 'Segoe UI' }}>{creating ? 'Creating...' : 'Create'}</button>
+            <button onClick={function() { setShowCreateForm(false); setNewIncident({ title: '', description: '' }); }} style={{ padding: '8px 20px', borderRadius: '8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#888', fontSize: '12px', cursor: 'pointer', fontFamily: 'Segoe UI' }}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       {/* Summary */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>

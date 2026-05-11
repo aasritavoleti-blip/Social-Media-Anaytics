@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
 const alertsData = [
-  { id: 'ALT001', title: 'Negative Sentiment Spike', message: 'X platform లో 23 negative mentions detected in 1 hour', platform: 'X', severity: 'High', time: '2 mins ago', resolved: false },
-  { id: 'ALT002', title: 'Harmful Keyword Detected', message: 'Facebook post లో harmful keyword found', platform: 'Facebook', severity: 'High', time: '15 mins ago', resolved: false },
+  { id: 'ALT001', title: 'Negative Sentiment Spike', message: 'X platform detected 23 negative mentions in 1 hour', platform: 'X', severity: 'High', time: '2 mins ago', resolved: false },
+  { id: 'ALT002', title: 'Harmful Keyword Detected', message: 'Facebook post with harmful keyword found', platform: 'Facebook', severity: 'High', time: '15 mins ago', resolved: false },
   { id: 'ALT003', title: 'Engagement Drop Alert', message: 'Instagram engagement 40% drop detected', platform: 'Instagram', severity: 'Medium', time: '1 hour ago', resolved: false },
   { id: 'ALT004', title: 'Mention Surge', message: 'Brand mentions 300% increase on X', platform: 'X', severity: 'Low', time: '2 hours ago', resolved: true },
-  { id: 'ALT005', title: 'Negative Review Cluster', message: 'Instagram లో 15 negative reviews in 30 mins', platform: 'Instagram', severity: 'High', time: '3 hours ago', resolved: true },
-  { id: 'ALT006', title: 'Comment Spam Detected', message: 'Facebook లో spam comments detected', platform: 'Facebook', severity: 'Medium', time: '5 hours ago', resolved: true },
+  { id: 'ALT005', title: 'Negative Review Cluster', message: 'Instagram detected 15 negative reviews in 30 mins', platform: 'Instagram', severity: 'High', time: '3 hours ago', resolved: true },
+  { id: 'ALT006', title: 'Comment Spam Detected', message: 'Facebook detected spam comments', platform: 'Facebook', severity: 'Medium', time: '5 hours ago', resolved: true },
 ];
 
 function Alerts() {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const weeklyData = [
   { week: 'W1', likes: 18200, comments: 5200, shares: 2800 },
@@ -9,10 +10,11 @@ const weeklyData = [
   { week: 'W6', likes: 28400, comments: 8100, shares: 4100 },
 ];
 
-const platformData = [
-  { platform: 'Instagram', icon: '📸', likes: 68200, comments: 18400, shares: 9200, color: '#e1306c' },
-  { platform: 'Facebook', icon: '👤', likes: 42100, comments: 12300, shares: 7800, color: '#1877f2' },
-  { platform: 'X', icon: '🐦', likes: 32000, comments: 8000, shares: 4100, color: '#1da1f2' },
+const sentimentBreakdownData = [
+  { label: 'Positive', icon: '😊', value: 45, color: '#4caf82' },
+  { label: 'Weak Positive', icon: '🙂', value: 20, color: '#8bc34a' },
+  { label: 'Neutral', icon: '😐', value: 20, color: '#f7a84f' },
+  { label: 'Negative', icon: '😞', value: 15, color: '#f74f4f' },
 ];
 
 function MiniBar({ value, max, color }) {
@@ -26,6 +28,14 @@ function MiniBar({ value, max, color }) {
 function Engagement() {
   const [selected, setSelected] = useState('likes');
   const maxVal = Math.max(...weeklyData.map(d => d[selected]));
+
+  // Static sentiment values based on fixed sentiment categories
+  const sentimentChartData = [
+    { name: 'Positive', value: 45, color: '#4caf82' },
+    { name: 'Weak Positive', value: 20, color: '#8bc34a' },
+    { name: 'Neutral', value: 20, color: '#f7a84f' },
+    { name: 'Negative', value: 15, color: '#f74f4f' },
+  ];
 
   return (
     <div style={{ animation: 'fadeInUp 0.5s ease' }}>
@@ -82,26 +92,72 @@ function Engagement() {
         </div>
       </div>
 
-      {/* Platform Breakdown */}
+      {/* Sentiment Breakdown */}
       <div style={{ background: 'linear-gradient(135deg, #0f1117, #131620)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '24px' }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', color: '#aaa', marginBottom: '20px' }}>Platform Breakdown</div>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: '#aaa', marginBottom: '20px' }}>Sentiment Breakdown</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {platformData.map((p, i) => (
+          {sentimentBreakdownData.map((item, i) => (
             <div key={i}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '20px' }}>{p.icon}</span>
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>{p.platform}</span>
+                  <span style={{ fontSize: '20px' }}>{item.icon}</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#fff' }}>{item.label}</span>
                 </div>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <span style={{ fontSize: '12px', color: '#555' }}>❤️ {p.likes.toLocaleString()}</span>
-                  <span style={{ fontSize: '12px', color: '#555' }}>💬 {p.comments.toLocaleString()}</span>
-                  <span style={{ fontSize: '12px', color: '#555' }}>🔁 {p.shares.toLocaleString()}</span>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', color: '#fff', fontWeight: '700' }}>{item.value}%</span>
                 </div>
               </div>
-              <MiniBar value={p.likes} max={68200} color={p.color} />
+              <MiniBar value={item.value} max={45} color={item.color} />
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Sentiment Analysis Graphs */}
+      <div style={{ background: 'linear-gradient(135deg, #0f1117, #131620)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '24px', marginTop: '24px' }}>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: '#aaa', marginBottom: '20px' }}>Sentiment Distribution</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          {/* Bar Chart */}
+          <div>
+            <h3 style={{ fontSize: '14px', color: '#fff', marginBottom: '16px' }}>Sentiment Counts</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={sentimentChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="name" stroke="#aaa" />
+                <YAxis stroke="#aaa" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  labelStyle={{ color: '#fff' }}
+                />
+                <Bar dataKey="value" fill="#4f8ef7" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Pie Chart */}
+          <div>
+            <h3 style={{ fontSize: '14px', color: '#fff', marginBottom: '16px' }}>Sentiment Percentage</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={sentimentChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {sentimentChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                  labelStyle={{ color: '#fff' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

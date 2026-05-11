@@ -154,7 +154,7 @@ function App() {
         {activePage === 'Sentiment' && <Sentiment />}
         {activePage === 'Settings' && <Settings />}
         {activePage === 'Incidents' && <Incidents />}
-        {!['Dashboard', 'Engagement', 'Reports', 'Alerts', 'Team', 'Sentiment','Settings'].includes(activePage) && (          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '16px' }}>
+        {!['Dashboard', 'Engagement', 'Reports', 'Alerts', 'Team', 'Sentiment', 'Settings', 'Incidents'].includes(activePage) && (          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '16px' }}>
             <div style={{ fontSize: '48px' }}>🚧</div>
             <h2 style={{ color: '#444', fontSize: '18px' }}>{activePage} - Coming Soon</h2>
             <p style={{ color: '#333', fontSize: '13px' }}>This page is under construction</p>
