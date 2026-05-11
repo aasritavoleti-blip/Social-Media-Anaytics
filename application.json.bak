@@ -2,5 +2,10 @@
   "name": "SMA Platform",
   "description": "Social Media Analytics Platform - Integrates social media monitoring with ServiceNow incident management",
   "version": "1.0.0",
-  "scope": "x_1939553_smv"
+  "scope": "x_1939553_smv",
+  "sys_app": {
+    "name": "SMA Platform",
+    "scope": "x_1939553_smv",
+    "description": "Social Media Analytics Platform"
+  }
 }
