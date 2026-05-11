@@ -1,0 +1,10 @@
+{
+  "id": "x_1939553_smv",
+  "name": "SMV",
+  "short_description": "Social Media Analytics Platform",
+  "version": "1.0.0",
+  "scope": "x_1939553_smv",
+  "active": true,
+  "dependencies": [],
+  "js_level": "es_latest"
+}
