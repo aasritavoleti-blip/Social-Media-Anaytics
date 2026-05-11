@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { getInstagramPosts } from './api';
 
 const weeklyData = [
   { week: 'W1', likes: 18200, comments: 5200, shares: 2800 },
@@ -27,7 +28,19 @@ function MiniBar({ value, max, color }) {
 
 function Engagement() {
   const [selected, setSelected] = useState('likes');
+  const [igPosts, setIgPosts] = useState([]);
   const maxVal = Math.max(...weeklyData.map(d => d[selected]));
+
+  useEffect(() => {
+    getInstagramPosts().then(function(data) {
+      if (data && data.length > 0) {
+        setIgPosts(data);
+      }
+    });
+  }, []);
+
+  const totalLikes = igPosts.length > 0 ? igPosts.reduce((sum, p) => sum + (parseInt(p.likes) || 0), 0) : 142300;
+  const totalComments = igPosts.length > 0 ? igPosts.reduce((sum, p) => sum + (parseInt(p.comments) || 0), 0) : 38700;
 
   // Static sentiment values based on fixed sentiment categories
   const sentimentChartData = [
@@ -47,8 +60,8 @@ function Engagement() {
       {/* Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
         {[
-          { label: '❤️ Total Likes', value: '142.3K', change: '+12.4%', color: '#f74f4f' },
-          { label: '💬 Total Comments', value: '38.7K', change: '+8.1%', color: '#4f8ef7' },
+          { label: '\u2764\uFE0F Total Likes', value: totalLikes > 1000 ? (totalLikes / 1000).toFixed(1) + 'K' : totalLikes, change: '+12.4%', color: '#f74f4f' },
+          { label: '\uD83D\uDCAC Total Comments', value: totalComments > 1000 ? (totalComments / 1000).toFixed(1) + 'K' : totalComments, change: '+8.1%', color: '#4f8ef7' },
           { label: '🔁 Total Shares', value: '21.1K', change: '-3.2%', color: '#4caf82' },
         ].map((m, i) => (
           <div key={i} style={{ background: 'linear-gradient(135deg, #0f1117, #131620)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '20px', transition: 'all 0.3s', cursor: 'pointer' }}

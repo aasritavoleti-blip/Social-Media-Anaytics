@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { createIncident } from './api';
+import React, { useState, useEffect } from 'react';
+import { createIncident, getIncidents } from './api';
 
-const incidentsData = [
+const fallbackIncidents = [
   { id: 'INC0012847', title: 'Negative Spike Detected', platform: 'X', priority: 'High', status: 'Open', assignee: 'Arjun Mehta', time: '2 mins ago', desc: '23 negative mentions detected in 1 hour' },
   { id: 'INC0012839', title: 'Brand Mention Alert', platform: 'Facebook', priority: 'High', status: 'In Progress', assignee: 'Priya Patel', time: '15 mins ago', desc: 'Harmful keyword detected in comments' },
   { id: 'INC0012831', title: 'Engagement Drop', platform: 'Instagram', priority: 'Medium', status: 'In Progress', assignee: 'Sneha Reddy', time: '1 hour ago', desc: 'Instagram engagement dropped by 40%' },
@@ -11,10 +11,31 @@ const incidentsData = [
 
 function Incidents() {
   const [filter, setFilter] = useState('All');
-  const [incidents, setIncidents] = useState(incidentsData);
+  const [incidents, setIncidents] = useState(fallbackIncidents);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newIncident, setNewIncident] = useState({ title: '', description: '' });
   const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    getIncidents().then(function(data) {
+      if (data && data.length > 0) {
+        const mapped = data.map(function(inc) {
+          const stateMap = { '1': 'Open', '2': 'In Progress', '3': 'In Progress', '6': 'Resolved', '7': 'Resolved' };
+          return {
+            id: inc.number || inc.sys_id,
+            title: inc.short_description || 'No title',
+            platform: inc.u_platform || 'ServiceNow',
+            priority: inc.priority === '1' ? 'High' : inc.priority === '2' ? 'Medium' : 'Low',
+            status: stateMap[inc.state] || inc.state || 'Open',
+            assignee: inc.assigned_to ? (inc.assigned_to.display_value || 'Unassigned') : 'Unassigned',
+            time: inc.opened_at ? new Date(inc.opened_at).toLocaleString() : 'Unknown',
+            desc: inc.description || inc.short_description || ''
+          };
+        });
+        setIncidents(mapped);
+      }
+    });
+  }, []);
 
   const filtered = filter === 'All' ? incidents : incidents.filter(function(inc) { return inc.status === filter; });
 
